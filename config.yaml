@@ -208,6 +208,12 @@ dns:
 
 proxies:
 proxy-groups:
+  - name: Traffic-ALL
+    type: select
+    proxies:
+      - DIRECT
+      - PROXY
+
   - name: "PROXY"
     type: select
     use:
@@ -304,4 +310,4 @@ rules:
   # - IN-TYPE,inner,PROXY
 
   ## final
-  - MATCH,PROXY
+  - MATCH,Traffic-ALL
