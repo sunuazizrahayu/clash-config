@@ -200,7 +200,11 @@ dns:
       # - '+.facebook.com'
       # - '+.youtube.com'
 
-# hosts:
+hosts:
+  # bug.com is alias, type domain's ip with `dig domain.com`
+  bug.com:
+    - 1.1.1.1
+    - 2.2.2.2
   # # block update system android
   # 'ota.googlezip.net': 127.0.0.1
   # 'ota-cache1.googlezip.net': 127.0.0.1
