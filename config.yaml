@@ -10,7 +10,7 @@ tproxy-port: 9898
 # 此项拥有默认值，默认为规则模式
 mode: rule
 allow-lan: true
-# unified-delay: true
+unified-delay: true
 bind-address: '*'
 
 # silent 静默，不输出
