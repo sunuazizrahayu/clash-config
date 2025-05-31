@@ -1,0 +1,11 @@
+payload:
+#- DOMAIN-KEYWORD,ifconfig
+#- DOMAIN-SUFFIX,ifconfig.co
+#- DOMAIN-SUFFIX,ifconfig.io
+#- DOMAIN-SUFFIX,ifconfig.me
+
+#apkpure
+- DOMAIN-SUFFIX,winudf.com
+
+#reddit
+- DOMAIN-SUFFIX,reddit.com
