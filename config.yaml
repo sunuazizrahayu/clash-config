@@ -1,1 +1,281 @@
+port: 7890
+socks-port: 7891
+mixed-port: 7893
+redir-port: 9797
+tproxy-port: 9898
 
+mode: rule
+allow-lan: true
+unified-delay: true
+bind-address: "*"
+
+log-level: silent
+ipv6: true
+
+external-controller: 0.0.0.0:9090
+secret: ""
+external-ui: ./dashboard/zashboard
+#external-ui-url: "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+#external-ui-url: "https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.zip"
+#external-ui-url: "https://github.com/haishanh/yacd/archive/refs/heads/gh-pages.zip"
+external-ui-url: "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+tcp-concurrent: true
+
+find-process-mode: always
+
+profile:
+  store-selected: true
+  store-fake-ip: true
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  sniff:
+    TLS:
+      ports: [443, 8443]
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+
+dns:
+  enable: true
+  ipv6: true
+  prefer-h3: true
+
+  # dns nameserver
+  nameserver:
+    - 1.1.1.1
+    - 1.0.0.1
+    - 2606:4700:4700::1111
+    - 2606:4700:4700::1001
+
+  # dns
+  listen: 0.0.0.0:1053
+  use-hosts: true
+  
+  # clash dns: fake-ip / redir-host
+  enhanced-mode: redir-host
+  
+  # fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - '*.lan'
+    - 'google.com'
+    - '*.google.com'
+
+
+proxy-providers:
+  akun:
+    type: file
+    path: ./provide/akun.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  masbodong_id:
+    type: file
+    path: ./provide/proxy_id_masbodong.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  masbodong_sg:
+    type: file
+    path: ./provide/akun_masbodong_sg.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  masbodong_my:
+    type: file
+    path: ./provide/akun_masbodong_my.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  proxy_canada:
+    type: file
+    path: ./provide/proxy_canada.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  proxy_indonesia:
+    type: file
+    path: ./provide/proxy_indonesia.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  vpn_indonesia:
+    type: file
+    path: ./provide/vpn_indonesia.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+  subscription:
+    type: file
+    path: ./provide/subscription.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 30
+
+hosts:
+  # domain-bug.com
+   bug.com:
+   - 1.1.1.1
+   - 2.2.2.2
+
+
+proxy-groups:
+# TRAFFIC LIST
+###########################################
+  - name: Traffic-UMUM
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+      - AKUN
+      - AKUN-SELECT
+      - PROXY-ID
+      - PROXY-MY
+      - PROXY-SG
+      - PROXY-CANADA
+      - VPN-INDONESIA
+    use:
+      - subscription
+  - name: Traffic-BANK
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+      - Traffic-UMUM
+      - AKUN
+      - PROXY-ID
+      - PROXY-MY
+      - PROXY-SG
+      - PROXY-CANADA
+      - VPN-INDONESIA
+    use:
+      - subscription
+  - name: Traffic-BLOCK
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+      - Traffic-UMUM
+      - AKUN
+      - PROXY-ID
+      - PROXY-MY
+      - PROXY-SG
+      - PROXY-CANADA
+      - VPN-INDONESIA
+  - name: Traffic-ADS
+    type: select
+    proxies:
+      - REJECT
+      - DIRECT
+      - Traffic-UMUM
+  - name: Traffic-Geo-Malaysia
+    type: select
+    proxies:
+      - DIRECT
+      - Traffic-UMUM
+      - PROXY-MY
+  - name: Traffic-Geo-Canada
+    type: select
+    proxies:
+      - DIRECT
+      - Traffic-UMUM
+      - PROXY-CANADA
+  - name: Traffic-Geo-Indonesia
+    type: select
+    proxies:
+      - DIRECT
+      - Traffic-UMUM
+      - AKUN
+      - VPN-INDONESIA
+  - name: Traffic-OTT
+    type: select
+    proxies:
+      - AKUN
+    use:
+      - subscription
+      - masbodong_id
+
+
+# AKUN LIST
+###########################################
+  - name: AKUN
+    type: url-test
+    use:
+      - akun
+  - name: AKUN-SELECT
+    type: select
+    use:
+      - akun
+  - name: PROXY-ID
+    type: url-test
+    use:
+      - masbodong_id
+  - name: PROXY-SG
+    type: fallback
+    use:
+      - masbodong_sg
+  - name: PROXY-MY
+    type: fallback
+    use:
+      - masbodong_my
+  - name: PROXY-CANADA
+    type: fallback
+    use:
+      - proxy_canada
+  - name: VPN-INDONESIA
+    type: url-test
+    use:
+      - vpn_indonesia
+
+
+
+rule-providers:
+  rule_BANK:
+    type: file
+    path: "./rule/rule_bank.yaml"
+    behavior: classical
+  rule_BLOCK:
+    type: file
+    path: "./rule/rule_block.yaml"
+    behavior: classical
+  rule_GEO_CANADA:
+    type: file
+    path: "./rule/rule_geo_ca.yaml"
+    behavior: classical
+  rule_GEO_INDONESIA:
+    type: file
+    path: "./rule/rule_geo_id.yaml"
+    behavior: classical
+  rule_GEO_MALAYSIA:
+    type: file
+    path: "./rule/rule_geo_my.yaml"
+    behavior: classical
+  rule_ADBLOCK:
+    type: http
+    behavior: classical
+    path: "./rule/oisd_big.yaml"
+    url: https://raw.githubusercontent.com/hillz2/openclash_adblock/main/oisd_big.yaml
+    interval: 28800 # Update rules every 8 hours
+rules:
+  # fix dns leak
+  #- IP-CIDR,198.18.0.1/16,REJECT,no-resolve
+  - RULE-SET,rule_ADBLOCK,Traffic-ADS
+  - RULE-SET,rule_BANK,Traffic-BANK
+  - RULE-SET,rule_BLOCK,Traffic-BLOCK
+  - RULE-SET,rule_GEO_CANADA,Traffic-Geo-Canada
+  - RULE-SET,rule_GEO_INDONESIA,Traffic-Geo-Indonesia
+  - RULE-SET,rule_GEO_MALAYSIA,Traffic-Geo-Malaysia
+  - DOMAIN-SUFFIX,bug.com,DIRECT
+  - DOMAIN-SUFFIX,domain.com,Traffic-OTT
+  - MATCH,Traffic-UMUM
