@@ -1,6 +1,6 @@
 # port: 7890
 # socks-port: 7891
-# mixed-port: 7890
+# mixed-port: 7892
 redir-port: 9797
 tproxy-port: 9898
 
@@ -33,7 +33,7 @@ external-controller: 0.0.0.0:9090
 # secret: "123456"
 external-ui: /data/adb/box/clash/ui/zashboard
 external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
-# tcp-concurrent: false
+tcp-concurrent: true
 
 # 目前仅用于 API 的 https
 # tls:
@@ -56,7 +56,7 @@ external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/downloa
 # always 开启，强制匹配所有进程
 # strict 默认，由 Clash 判断是否开启
 # off 不匹配进程，推荐在路由器上使用此模式
-# find-process-mode: strict
+find-process-mode: always
 
 profile:
   store-selected: true
