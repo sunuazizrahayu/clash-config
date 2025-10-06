@@ -31,7 +31,7 @@ ipv6: false
 
 external-controller: 0.0.0.0:9090 
 # secret: "123456"
-external-ui: /data/adb/box/clash/ui/zashboard
+external-ui: ./ui/zashboard
 external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
 tcp-concurrent: true
 
