@@ -212,20 +212,28 @@ proxies:
 proxy-groups:
   - name: "INTERNET"
     type: select
-    use:
-      - "provide"
-      - "provide-cloud"
     proxies:
       - "DIRECT"
+      - "REJECT"
+      - "PROXY"
       - "PROXY-AUTO"
       - "PROXY-BEST"
+
   - name: "INTERNET-ads"
     type: select
     proxies:
       - REJECT
+      - DIRECT
       - INTERNET
+      - PROXY
       - PROXY-AUTO
       - PROXY-BEST
+
+  - name: "PROXY"
+    type: select
+    use:
+      - "provide"
+      - "provide-cloud"
 
   - name: "PROXY-AUTO"
     type: fallback
@@ -255,7 +263,7 @@ proxy-providers:
     type: http
     url: "https://violetvpn.my.id/sub/clash/?type=ws&bug=violetvpn.my.id"
     interval: 3600
-    path: ./provide/cloud.yml
+    path: ./provide/proxy-cloud.yaml
     # filter: 'xxx' # Supports regular expressions to filter by node name
     # exclude-filter: 'ctb' # Supports regular expressions to exclude based on node name
     # exclude-type: 'ss|http' # Does not support regular expressions, separated by '|', excluded by node type
