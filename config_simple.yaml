@@ -140,6 +140,7 @@ dns:
 
   # fakeip 过滤，以下地址不会下发 fakeip 映射用于连接
   fake-ip-filter:
+    - google.com
     - '*.lan'
     # - localhost.ptlogin2.qq.com
 
