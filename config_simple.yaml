@@ -220,15 +220,12 @@ proxy-groups:
       - "PROXY-AUTO"
       - "PROXY-BEST"
 
-  - name: "INTERNET-ads"
+  - name: "INTERNET-ADS"
     type: select
     proxies:
       - REJECT
       - DIRECT
       - INTERNET
-      - PROXY
-      - PROXY-AUTO
-      - PROXY-BEST
 
   - name: "PROXY"
     type: select
@@ -330,7 +327,7 @@ rules:
   # - IN-TYPE,inner,INTERNET
   
   ## traffic rules
-  - RULE-SET,rule_ads,INTERNET-ads
+  - RULE-SET,rule_ads,INTERNET-ADS
 
   ## final
   - MATCH,INTERNET
