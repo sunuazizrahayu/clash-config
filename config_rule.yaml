@@ -1,0 +1,360 @@
+port: 7890
+socks-port: 7891
+mixed-port: 7892
+redir-port: 9797
+tproxy-port: 9898
+
+# rule 规则匹配
+# global 全局代理(需要在GLOBAL策略组选择代理/策略)
+# direct 全局直连
+# 此项拥有默认值，默认为规则模式
+mode: rule
+allow-lan: true
+unified-delay: true
+bind-address: '*'
+
+# silent 静默，不输出
+# error 仅输出发生错误至无法使用的日志
+# warning 输出发生错误但不影响运行的日志，以及 error 级别内容
+# info 输出一般运行的内容，以及 error 和 warning 级别的日志
+# debug 尽可能的输出运行中所有的信息
+log-level: silent
+ipv6: false
+
+# 更改geoip使用文件,mmdb或者dat,true为dat
+# geodata-mode: true
+
+# 可选的加载模式如下
+# standard：标准加载器
+# memconservative：专为内存受限(小内存)设备优化的加载器(默认值)
+# geodata-loader: memconservative
+
+external-controller: 0.0.0.0:9090 
+# secret: "123456"
+external-ui: ./ui/zashboard
+external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
+tcp-concurrent: true
+
+# 目前仅用于 API 的 https
+# tls:
+  # certificate: string # 证书 PEM 格式，或者 证书的路径
+  # private-key: string # 证书对应的私钥 PEM 格式，或者私钥路径
+
+# 全局 TLS 指纹，优先低于 proxy 内的 client-fingerprint。
+# 目前支持开启 TLS 传输的 TCP/grpc/WS/HTTP , 支持协议有 VLESS,Vmess 和 trojan.
+# global-client-fingerprint: chrome
+# Note:
+# 可选："chrome", "firefox", "safari", "iOS", "android", "edge", "360"," qq", "random"
+# 若选择 "random", 则按 Cloudflare Radar 数据按概率生成一个现代浏览器指纹。
+
+# geox-url:
+  # mmdb: "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb"
+  # geoip: "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geoip.dat"
+  # geosite: "https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geosite.dat"
+
+# 控制是否让 Clash 去匹配进程
+# always 开启，强制匹配所有进程
+# strict 默认，由 Clash 判断是否开启
+# off 不匹配进程，推荐在路由器上使用此模式
+find-process-mode: always
+
+profile:
+  store-selected: true
+  # 储存 API 对策略组的选择，以供下次启动时使用
+  store-fake-ip: true
+  # 储存 fakeip 映射表，域名再次发生连接时，使用原有映射地址
+
+sniffer:                           #【Meta专属】sniffer域名嗅探器
+  enable: true                    # 嗅探器开关
+
+                                   # # 开启后对 redir-host 类型识别的流量进行强制嗅探
+                                   # # 包含 Tun、Redir 和 TProxy 或 DNS 为 redir-host
+  force-dns-mapping: true
+  parse-pure-ip: true           # 对所有未获取到域名的流量进行强制嗅探
+
+  override-destination: true      # 是否使用嗅探结果作为实际访问,默认 true
+                                   # # 全局配置,优先级低于 sniffer.sniff 实际配置
+  sniff: # TLS 默认如果不配置 ports 默认嗅探 443
+    HTTP: # 需要嗅探的端口, 默认嗅探 80
+      ports: [80, 8080-8880]
+      override-destination: true # 可覆盖 sniffer.override-destination
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  # force-domain:
+    # - +.v2ex.com
+  # # 白名单,跳过嗅探结果
+  # skip-domain:
+    # - Mijia Cloud
+
+tun:
+  enable: false
+  device: utun
+  mtu: 9000
+  stack: system # gvisor / lwip / system
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+  auto-route: true
+  auto-detect-interface: true
+  # include_android_user:
+    # - 0
+    # - 10
+  # include_package:
+  # - com.android.chrome
+  # exclude_package:
+    # - com.whatsapp
+
+dns:
+  enable: true
+  ipv6: true
+  prefer-h3: true
+
+  # dns 服务监听
+  listen: 0.0.0.0:1053
+  use-hosts: true
+
+  # Clash 的 dns 处理模式: fake-ip / redir-host
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  fake-ip-filter:
+    - google.com
+    - '*.lan'
+    # - localhost.ptlogin2.qq.com
+
+  nameserver:
+    - 1.1.1.1
+    - 1.0.0.1
+
+  proxy-server-nameserver:
+    - tls://dot.pub
+
+# hosts:
+  # # block update system android
+  # 'ota.googlezip.net': 127.0.0.1
+  # 'ota-cache1.googlezip.net': 127.0.0.1
+  # 'ota-cache2.googlezip.net': 127.0.0.1
+
+proxies:
+proxy-groups:
+  - name: "INTERNET"
+    type: select
+    proxies:
+      - DIRECT
+      - REJECT
+      - PROXY
+      - PROXY-AUTO
+      - PROXY-BEST
+      - AKUN-AUTO
+      - VPN-SG-AUTO
+    use:
+      - provide
+      - vpn-sg
+      - provide-cloud
+
+  - name: "INTERNET-YOUTUBE"
+    type: select
+    proxies:
+      - INTERNET
+      - DIRECT
+      - PROXY
+      - PROXY-AUTO
+      - AKUN
+      - AKUN-AUTO
+      - VPN-SG
+      - VPN-SG-AUTO
+    use:
+      - provide
+      - vpn-sg
+      - provide-cloud
+
+  - name: "INTERNET-ADS"
+    type: select
+    proxies:
+      - INTERNET
+      - DIRECT
+      - REJECT
+
+  - name: "INTERNET-GEO"
+    type: select
+    proxies:
+      - INTERNET
+      - PROXY
+      - PROXY-AUTO
+      - AKUN
+      - AKUN-AUTO
+      - VPN-SG
+      - VPN-SG-AUTO
+    use:
+      - provide
+      - vpn-sg
+      - provide-cloud
+
+  - name: "INTERNET-SSH"
+    type: select
+    proxies:
+      - INTERNET
+      - DIRECT
+      - PROXY
+      - PROXY-AUTO
+      - AKUN
+      - AKUN-AUTO
+      - VPN-SG
+      - VPN-SG-AUTO
+    use:
+      - provide
+      - vpn-sg
+      - provide-cloud
+
+
+  - name: PROXY
+    type: select
+    use:
+      - provide-cloud
+
+  - name: PROXY-AUTO
+    type: fallback
+    use:
+      - provide-cloud
+
+  - name: PROXY-BEST
+    type: url-test
+    use:
+      - provide-cloud
+
+
+  - name: AKUN
+    type: select
+    use:
+      - provide
+
+  - name: AKUN-AUTO
+    type: fallback
+    use:
+      - provide
+
+
+  - name: VPN-SG
+    type: select
+    use:
+      - vpn-sg
+
+  - name: VPN-SG-AUTO
+    type: fallback
+    use:
+      - vpn-sg
+
+proxy-providers:
+  "provide":
+    type: file
+    path: ./provide/subscription.yaml
+    # filter: 'xxx' # Supports regular expressions to filter by node name
+    # exclude-filter: 'ctb' # Supports regular expressions to exclude based on node name
+    # exclude-type: 'ss|http' # Does not support regular expressions, separated by '|', excluded by node type
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 3600
+
+  "provide-cloud":
+    type: http
+    url: "https://gamang.gpj2.dpdns.org/api/v1/sub/?format=clash&limit=5&vpn=vless&port=443&cc=ID,SG,MY&wc=false&bug="
+    interval: 3600
+    path: ./provide/proxy-cloud.yaml
+    # filter: 'xxx' # Supports regular expressions to filter by node name
+    # exclude-filter: 'ctb' # Supports regular expressions to exclude based on node name
+    # exclude-type: 'ss|http' # Does not support regular expressions, separated by '|', excluded by node type
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 3600
+
+  vpn-sg:
+    type: file
+    path: ./provide/vpn-sg.yaml
+    health-check:
+      enable: true
+      url: http://www.gstatic.com/generate_204
+      interval: 3600
+
+rule-providers:
+  rule_ads:
+    type: http
+    behavior: classical
+    path: "./rule/ads_oisd_big.yaml"
+    url: https://raw.githubusercontent.com/hillz2/openclash_adblock/main/oisd_big.yaml
+    interval: 28800 # Update rules every 8 hours
+  rule_geo_my:
+    type: http
+    behavior: classical
+    path: "./rule/geo-my.yaml"
+    url: https://github.com/sunuazizrahayu/clash-config/raw/refs/heads/main/rule/geo-my.yaml
+    #interval: 28800 # Update rules every 8 hours
+  rule_geo_sg:
+    type: http
+    behavior: classical
+    path: "./rule/geo-sg.yaml"
+    url: https://github.com/sunuazizrahayu/clash-config/raw/refs/heads/main/rule/geo-sg.yaml
+    #interval: 28800 # Update rules every 8 hours
+  rule_youtube:
+    type: http
+    behavior: classical
+    path: "./rule/youtube.yaml"
+    url: https://github.com/sunuazizrahayu/clash-config/raw/refs/heads/main/rule/youtube.yaml
+    interval: 43200 # Update rules every 12 hours
+
+  # block:
+    # type: http
+    # behavior: domain
+    # url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt"
+    # path: ./ruleset/block.yaml
+    # interval: 86400
+
+# clash.premium
+# script:
+  # shortcuts:
+    # quic: network == 'udp' and dst_port == 443
+    # youshit: network == 'udp' and ('youtube' in host or 'googlevideo' in host)
+
+rules:
+  ## block ads
+  # - DOMAIN-SUFFIX,googlesyndication.com,INTERNET
+  # - AND,((GEOSITE,category-ads-all),(NOT,((DOMAIN-SUFFIX,googlesyndication.com)))),REJECT
+  # - GEOSITE,category-ads-all,REJECT
+  # - RULE-SET,block,REJECT
+  # - SCRIPT,quic,REJECT
+  # - SCRIPT,youshit,REJECT
+
+  ## direct FCM
+  # - AND,((NETWORK,TCP),(DST-PORT,5228-5230)),DIRECT
+  # - AND,((NETWORK,TCP),(DST-PORT,5228-5230),(OR,((DOMAIN-KEYWORD,google)))),DIRECT
+ 
+  ## block udp/quic YouTube
+  # - AND,((NETWORK,udp),(OR,((DST-PORT,443/80),(GEOSITE,youtube)))),REJECT
+  # - AND,((NETWORK,udp),(GEOSITE,youtube)),REJECT
+
+  # # fix dnsleak
+  # - IP-CIDR,127.0.0.1/32,REJECT,no-resolve
+  # - IP-CIDR,198.18.0.1/16,REJECT,no-resolve
+  # - IP-CIDR,28.0.0.1/8,REJECT,no-resolve
+  # - IP-CIDR6,::1/128,REJECT,no-resolve
+  
+  ## rules telegram
+  # - GEOIP,telegram,INTERNET
+  # - GEOSITE,telegram,INTERNET
+
+  ## direct ntp
+  # - AND,((NETWORK,UDP),(DST-PORT,123)),DIRECT
+  # - DST-PORT,123/136/137-139,DIRECT,udp
+
+  ## rules inner, recommended untuk non kuota reguler
+  # - AND,((PROCESS-NAME,clash),(NOT,((IN-TYPE,inner)))),REJECT
+  # - IN-TYPE,inner,INTERNET
+
+  ## final
+  - RULE-SET,rule_ads,INTERNET-ADS
+  - RULE-SET,rule_geo_my,INTERNET-GEO
+  - RULE-SET,rule_geo_sg,INTERNET-GEO
+  - RULE-SET,rule_youtube,INTERNET-YOUTUBE
+  - MATCH,INTERNET
