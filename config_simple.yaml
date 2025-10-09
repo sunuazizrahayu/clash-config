@@ -219,13 +219,17 @@ proxy-groups:
       - "PROXY"
       - "PROXY-AUTO"
       - "PROXY-BEST"
+    use:
+      - "provide"
+      - "provide-cloud"
 
   - name: "INTERNET-ADS"
     type: select
     proxies:
-      - REJECT
-      - DIRECT
       - INTERNET
+      - DIRECT
+      - REJECT
+
 
   - name: "PROXY"
     type: select
@@ -259,7 +263,7 @@ proxy-providers:
 
   "provide-cloud":
     type: http
-    url: "https://violetvpn.my.id/sub/clash/?type=ws&bug=violetvpn.my.id"
+    url: "https://gamang.gpj2.dpdns.org/api/v1/sub/?format=clash&limit=5&vpn=vless&port=443&cc=ID,SG,MY&wc=false&bug="
     interval: 3600
     path: ./provide/proxy-cloud.yaml
     # filter: 'xxx' # Supports regular expressions to filter by node name
@@ -325,9 +329,7 @@ rules:
   ## rules inner, recommended untuk non kuota reguler
   # - AND,((PROCESS-NAME,clash),(NOT,((IN-TYPE,inner)))),REJECT
   # - IN-TYPE,inner,INTERNET
-  
-  ## traffic rules
-  - RULE-SET,rule_ads,INTERNET-ADS
 
   ## final
+  - RULE-SET,rule_ads,INTERNET-ADS
   - MATCH,INTERNET
