@@ -111,24 +111,25 @@ dns:
   ipv6: true
   prefer-h3: true
 
-  # dns 服务监听
+  # dns service monitoring
   listen: 0.0.0.0:1053
   use-hosts: true
 
-  # Clash 的 dns 处理模式: fake-ip / redir-host
+  # nameserver
+  default-nameserver:
+    - 1.1.1.1
+    - 1.0.0.1
+  nameserver:
+    - 1.1.1.1
+    - 1.0.0.1
+
+  # clash dns: fake-ip / redir-host
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   fake-ip-filter:
     - google.com
     - '*.lan'
     # - localhost.ptlogin2.qq.com
-
-  nameserver:
-    - 1.1.1.1
-    - 1.0.0.1
-
-  proxy-server-nameserver:
-    - tls://dot.pub
 
 # hosts:
   # # block update system android
